@@ -1,0 +1,4 @@
+﻿1>------ Rebuild All started: Project: NessusService, Configuration: Debug Any CPU ------
+1>D:\proj\WindowsService1\Scheduler.cs(15,23,15,29): warning CS0414: The field 'Scheduler.timer3' is assigned but its value is never used
+1>  NessusService -> D:\proj\WindowsService1\bin\Debug\NessusFileTransfer.exe
+========== Rebuild All: 1 succeeded, 0 failed, 0 skipped ==========
