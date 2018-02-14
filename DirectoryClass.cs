@@ -43,41 +43,80 @@ namespace NessusService
     class ProgramFunctions
     {
         public static void CreateDirectories()
-        {   
+        {
             foreach (string filePath in ProgramDirectories.conectorPaths)
 
                 if (!Directory.Exists(filePath))
                 {
                     Directory.CreateDirectory(filePath);
 
-                foreach (string otherDirs in ProgramDirectories.OasysisPlaces)
+                    foreach (string otherDirs in ProgramDirectories.OasysisPlaces)
 
-                    if (!Directory.Exists(otherDirs))
-                    {
-                        Directory.CreateDirectory(otherDirs);
-                    }
+                        if (!Directory.Exists(otherDirs))
+                        {
+                            Directory.CreateDirectory(otherDirs);
+                        }
                 }
 
-         }
-               
+        }
+
         public static void CopyToConnectors(string tempUpdateDir, string Cpath)
-        { 
-            foreach (string srcPath in Directory.GetFiles(ProgramDirectories.NewUpdates))//////////////////////////////////////////////////////////////////////////
-            {
-                if (File.Exists(srcPath))
-                {
-                    File.Copy(srcPath, srcPath.Replace(tempUpdateDir, Cpath), true);                 
-                }
-                
-            }
+        {
+            int fileCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.*",
+                SearchOption.TopDirectoryOnly).Length;
 
+           
+
+            if (fileCount != 0)
+            {
+                Program.Main();
+            }
+            else
+            {
+
+                try
+                {
+
+                    DirectoryInfo di = new DirectoryInfo(ProgramDirectories.NewUpdates);
+
+                    foreach (FileInfo fi in di.GetFiles())
+                    {
+
+
+                        string fileName = fi.Name;
+                        string fullFileName = ProgramDirectories.NewUpdates + fileName;
+
+                        var firstFilename = di.EnumerateFiles()
+                            .Select(f => f.Name)
+                            .FirstOrDefault();
+
+                        string Update_From_Temp = ProgramDirectories.NewUpdates + firstFilename;
+
+                        string full_target_path = Cpath + firstFilename;
+
+                        Logging.WriteLog("NESSUS Update: " + firstFilename + " Has been copied to " + Cpath);
+
+
+                        File.Move(Update_From_Temp, Cpath + firstFilename);
+
+                        break;
+                    }
+
+                }
+
+                catch (Exception e)
+                {
+                    Logging.WriteLog("The process failed @ CopyToConnectors fun " + e);
+                }
+            }
+     
         }
 
         public static void IMnotAzip()
         {
             try
             {
-                string[] xml = Directory.GetFiles(ProgramDirectories.NSOC, "*.xml", SearchOption.TopDirectoryOnly);
+                string[] xml = Directory.GetFiles(ProgramDirectories.NSOC, "*.nessus", SearchOption.TopDirectoryOnly);
 
                 foreach (string xmls in xml)
                 {
@@ -107,9 +146,9 @@ namespace NessusService
                         dir.Delete(true);
                     }
 
-                    List<string> notXml_Or_Zipfiles = Directory.EnumerateFiles(targetdir, "*.*", SearchOption.AllDirectories)
-                        .Where(n => Path.GetExtension(n) != ".xml").Where(n => Path.GetExtension(n) != ".zip").ToList();
-                    string[] notXmlarray = notXml_Or_Zipfiles.Select(i => i.ToString()).ToArray();
+                    List<string> notNessusOrZip = Directory.EnumerateFiles(targetdir, "*.*", SearchOption.AllDirectories)
+                        .Where(n => Path.GetExtension(n) != ".nessus").Where(n => Path.GetExtension(n) != ".zip").ToList();
+                    string[] notXmlarray = notNessusOrZip.Select(i => i.ToString()).ToArray();
 
                     foreach (string eronfile in notXmlarray)
                     {
@@ -134,24 +173,12 @@ namespace NessusService
                        
         public static void RmTempFile()
         {
-            if(!Directory.Exists(ProgramDirectories.dailyArchive))
-            {
-                Directory.CreateDirectory(ProgramDirectories.dailyArchive);
-            }
-
-            string[] oldZipdir = Directory.GetFiles(ProgramDirectories.NewUpdates, "*.zip", SearchOption.TopDirectoryOnly);
-
-            foreach (string rmZips in oldZipdir)
-            {
-                File.Copy(rmZips, Path.Combine(ProgramDirectories.dailyArchive, rmZips), true);
-                File.Delete(rmZips);
-            }
-  
-            if (oldZipdir.Length >= 1)
+            if (ProgramDirectories.NewUpdates.Length == 0)
             {
                 Directory.Delete(ProgramDirectories.NewUpdates, true);
                 Logging.WriteLog("Removing 'Temp' Directory");
             }
+            
         }
 
         public static void OldUpdates(string cmPath)

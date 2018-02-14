@@ -2,6 +2,10 @@
 using NessusFileTransfer;
 using System.IO;
 
+
+//KNOWN WORKING VERSION!!!!!
+
+
 namespace NessusService
 {
     static class Program
@@ -17,27 +21,38 @@ namespace NessusService
 
             ProgramFunctions.CreateDirectories();
 
-            Logging.WriteLog("Checking File Structure integrity");
+            
 
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.NSOC);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM1);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM2);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM3);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM4);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM5);
-            ProgramFunctions.IntegrityCheck(ProgramDirectories.CM6);
+            int fileCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.zip",
+                SearchOption.TopDirectoryOnly).Length;
 
-            UnZip.unZipper();
+           
 
-            ProgramFunctions.IMnotAzip();
+            if (fileCount != 0)
+            {
 
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM1);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM2);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM3);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM4);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM5);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM6);
-            ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.dailyArchive);
+                Logging.WriteLog("Updates Found Extracting now");
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.NSOC);
+                UnZip.unZipper();
+                ProgramFunctions.IMnotAzip();
+
+            }
+
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM1);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM1);
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM2);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM2);
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM3);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM3);
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM4);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM4);
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM5);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM5);
+                ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM6);
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.CM6);
+            
+           
+
 
             Logging.DisplayUpdates();
 
