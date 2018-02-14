@@ -9,6 +9,7 @@ namespace NessusFileTransfer
     {
         public static void unZipper()
         {
+           
             if (!Directory.Exists(ProgramDirectories.NewUpdates))
             {
                 Directory.CreateDirectory(ProgramDirectories.NewUpdates);

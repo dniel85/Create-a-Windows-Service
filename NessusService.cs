@@ -29,6 +29,7 @@ namespace NessusService
             int FileCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.nessus",
                 SearchOption.TopDirectoryOnly).Length;
 
+
             if (FileCount != 0 || ZipCount !=0)
             {
                 Logging.WriteLog("Updates Found Extracting now");
