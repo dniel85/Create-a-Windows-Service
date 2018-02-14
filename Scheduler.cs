@@ -36,15 +36,16 @@ namespace NessusService
         protected override void OnStart(string[] args)
         {
             
+            
+            ProgramFunctions.CreateDirectories();
             ReadMeDoc.README();
             Logging.TailLogPowerShellScript();
-            ProgramFunctions.CreateDirectories();
-           
 
             timer1 = new Timer();
-            timer1.Interval = 60000;  // <-- Poll every 2 Min
+            timer1.Interval = 60000 *5;  // <-- Poll every 5 Min
             Logging.WriteLog("*************** Starting Service");
             Logging.WriteLog("Updates being checked every " + ((timer1.Interval / 1000) / 60) + " Minute(S) starting");
+            ProgramFunctions.IntegrityCheck(ProgramDirectories.NSOC);
             timer1.Elapsed += new ElapsedEventHandler(timer1_tick);
             timer1.Enabled = true;
 
@@ -57,6 +58,7 @@ namespace NessusService
 
             try
             {
+                ProgramFunctions.IntegrityCheck(ProgramDirectories.NSOC);
                 Logging.WriteLog("");
                 Logging.WriteLog("_____________________________________________");
 
@@ -64,37 +66,27 @@ namespace NessusService
 
                 Program.Main();
             }
-
+            
             finally
             {
+               
                 timer1.Enabled = true;
                 DirectoryInfo getUpdates = new DirectoryInfo(ProgramDirectories.NSOC);
                 FileInfo[] Files = getUpdates.GetFiles("*.*");
 
                 if (Files.Length == 0)
                 {
-                    if (!Directory.Exists(ProgramDirectories.NewUpdates))
-                    {
-                       
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM1);
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM2);
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM3);
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM4);
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM5);
-                        ProgramFunctions.OldUpdates(ProgramDirectories.CM6);
-
-                        Logging.WriteLog("Finishing updates");
-                     
-                        Logging.WriteLog("_____________________________________________");
-                        Logging.WriteLog("");
-                    }
+                   
+                    ProgramFunctions.Cleanup();
+                    Logging.WriteLog("Finishing updates");
+                  
+                    Logging.WriteLog("_____________________________________________");
+                    
                 }
                
             }
         }
       
-        //Program.Main();
-
         
         protected override void OnStop()
         {

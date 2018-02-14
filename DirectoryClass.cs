@@ -97,7 +97,17 @@ namespace NessusService
                         Logging.WriteLog("NESSUS Update: " + firstFilename + " Has been copied to " + Cpath);
 
 
-                        File.Move(Update_From_Temp, Cpath + firstFilename);
+
+                        if (File.Exists(full_target_path))
+                        {
+                            Logging.WriteLog("File  already Exits removing");
+                            File.Delete(Update_From_Temp);
+                        }
+                        else
+                        {
+                            Logging.WriteLog("NESSUS Update: " + firstFilename + " Has been copied to " + Cpath);
+                            File.Move(Update_From_Temp, Cpath + firstFilename);
+                        }
 
                         break;
                     }
@@ -204,7 +214,48 @@ namespace NessusService
             }
 
         }
+        
 
+        public static void Cleanup()
+        {
+            string[] logPath = Directory.GetFiles(ProgramDirectories.logDir);
+            
+
+            try
+            {
+                foreach (string file in logPath)
+                {
+                    FileInfo fi = new FileInfo(file);
+                   
+                    if (fi.CreationTime < DateTime.Now.AddDays(-1))
+                    {
+                        Logging.WriteLog("Removing " + fi.Name + " from " + logPath);
+                        fi.Delete();
+                    }
+
+                }
+             
+                string[] archiveDir = Directory.GetDirectories(ProgramDirectories.archives);
+                // string[] archiveFiles = Directory.GetFiles(ProgramDirectories.dailyArchive)
+                foreach (string dirs in archiveDir)
+                {
+                    DirectoryInfo dirDate = new DirectoryInfo(dirs);
+                    if (dirDate.CreationTime <DateTime.Now.AddMonths(-2))
+                    {
+                        dirDate.Delete(true);
+                    }
+                }
+                   
+                  
+                
+               
+            }
+            catch (Exception e)
+            {
+                Logging.WriteLog("The process failed: {0}" + e.ToString());
+            }
+
+        }
     }
 
 
@@ -283,6 +334,27 @@ namespace NessusService
 
     class Archiving
     {
+        public static void CopyToArchive()
+        {
+            try
+                {
+                    string[] UpdateFiles = Directory.GetFiles(ProgramDirectories.NSOC, "*.*");
+                      foreach(string f in UpdateFiles)
+                    {
+                        string fName = f.Substring(ProgramDirectories.NSOC.Length);
+
+                        File.Copy(Path.Combine(ProgramDirectories.NSOC, fName), Path.Combine(ProgramDirectories.dailyArchive, fName), true);
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Logging.WriteLog("The process failed: {0}" + e.ToString());
+            }    
+        }
+
+
         public static void ZipOldUpdate()
         {
             TimeSpan start = new TimeSpan(23, 0, 0); //10 o'clock
@@ -327,5 +399,6 @@ namespace NessusService
                 Logging.WriteLog("Archive Not createed at this time.  Archive times are between "+now.ToString("HH:mm"+" and " +end.ToString("HH:mm")+"."));
             }
         }
+
     }
 }

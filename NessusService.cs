@@ -23,21 +23,21 @@ namespace NessusService
 
             
 
-            int fileCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.zip",
+            int ZipCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.zip",
                 SearchOption.TopDirectoryOnly).Length;
 
-           
+            int FileCount = Directory.GetFiles(ProgramDirectories.NSOC, "*.nessus",
+                SearchOption.TopDirectoryOnly).Length;
 
-            if (fileCount != 0)
+            if (FileCount != 0 || ZipCount !=0)
             {
-
                 Logging.WriteLog("Updates Found Extracting now");
                 ProgramFunctions.IntegrityCheck(ProgramDirectories.NSOC);
-                UnZip.unZipper();
+                Archiving.CopyToArchive();
                 ProgramFunctions.IMnotAzip();
-
+                UnZip.unZipper();
             }
-
+            
                 ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM1);
                 ProgramFunctions.IntegrityCheck(ProgramDirectories.CM1);
                 ProgramFunctions.CopyToConnectors(ProgramDirectories.NewUpdates, ProgramDirectories.CM2);
